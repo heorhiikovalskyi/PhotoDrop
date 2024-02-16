@@ -68,7 +68,9 @@ class ClientDowndloadService {
 
     const album = result[0].Albums;
 
-    return { album, images };
+    const paid = result[0].AlbumsClients?.paid;
+
+    return { album: { ...album, paid }, images };
   };
 
   public getImages = async (clientId: number) => {

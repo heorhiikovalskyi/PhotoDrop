@@ -4,3 +4,4 @@ node_modules
 /src/aws/.webpack/
 /src/aws/node_modules/
 /src/services/EditImages/opt/
+/src/aws/serverless.yml
