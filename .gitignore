@@ -1,2 +1,6 @@
 node_modules
 .env
+/src/aws/.serverless/
+/src/aws/.webpack/
+/src/aws/node_modules/
+/src/services/EditImages/opt/
