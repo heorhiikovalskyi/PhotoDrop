@@ -1,0 +1,34 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1702417859427,
+      "tag": "0000_jittery_mole_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1707223188033,
+      "tag": "0001_cuddly_absorbing_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1707223676758,
+      "tag": "0002_thick_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1707223697639,
+      "tag": "0003_lean_molten_man",
+      "breakpoints": true
+    }
+  ]
+}
