@@ -19,6 +19,7 @@ const s3 = new S3(s3Client);
 const { IMAGES_BUCKET, EDITED_IMAGES_BUCKET } = process.env;
 
 exports.handler = async (event: S3Event, context: Context, callback: Callback) => {
+  console.log('a');
   const key = decodeURIComponent(event.Records[0].s3.object.key);
   const slashIndex1 = key.indexOf('/');
   const slashIndex2 = key.indexOf('/', slashIndex1 + 1);
@@ -30,9 +31,15 @@ exports.handler = async (event: S3Event, context: Context, callback: Callback) =
       const newImage = { id: imageId, albumId: Number(albumId) };
       await imagesRepository.insertOne(newImage);
       try {
-        const buffer = await s3.getImage(IMAGES_BUCKET!, key);
-        const watermarked = await editImagesService.putWatermark(buffer);
+        console.log('a');
+        const insertedImage = await s3.getImage(IMAGES_BUCKET!, key);
+        console.log('b');
+        const watermarked = await editImagesService.putWatermark(insertedImage);
+        console.log('c');
         await s3.uploadImage(watermarked, EDITED_IMAGES_BUCKET!, `${key}_watermark`, 'image/jpeg');
+        const resizedImage = await editImagesService.resize(insertedImage, 400, 400);
+        const bluredImage = await editImagesService.blur(resizedImage);
+        await s3.uploadImage(bluredImage, EDITED_IMAGES_BUCKET!, `${key}_blured`, 'image/jpeg');
       } catch (err) {
         await imagesRepository.deleteOne(imageId);
         throw err;

@@ -49,6 +49,20 @@ class ClientDowndloadService {
     return urls;
   };
 
+  private getPreviewsUrls = async (images: Image[]) => {
+    const urls: string[] = [];
+    const bucket = EDITED_IMAGES_BUCKET;
+    if (!bucket) throw new ServerError();
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const { albumId, id } = image;
+      let key = `album/${albumId}/${id}`;
+      key += '_blured';
+      urls.push(await this.s3.getImageUrl(bucket, key));
+    }
+    return urls;
+  };
+
   public getAlbumImages = async (clientId: number, albumId: number) => {
     const result = await this.images.getByAlbumClient(albumId, clientId);
     const images: Image[] = [];
@@ -58,13 +72,18 @@ class ClientDowndloadService {
       if (Albums && AlbumsClients && Images) {
         const { paid, albumId } = AlbumsClients;
         const { id } = Images;
-        images.push({ paid, id, albumId, url: '' });
+        images.push({ paid, id, albumId, url: '', preview: '' });
       }
     });
 
     const imagesUrls = await this.getImagesUrls(images);
 
-    for (let i = 0; i < images.length; i++) images[i].url = imagesUrls[i];
+    const previewsUrls = await this.getPreviewsUrls(images);
+
+    for (let i = 0; i < images.length; i++) {
+      images[i].url = imagesUrls[i];
+      images[i].preview = previewsUrls[i];
+    }
 
     const album = result[0].Albums;
 
@@ -82,12 +101,17 @@ class ClientDowndloadService {
       const { imageId } = ImagesClients;
       if (AlbumsClients && Images) {
         const { paid, albumId } = AlbumsClients;
-        images.push({ paid, albumId, id: imageId, url: '' });
+        images.push({ paid, albumId, id: imageId, url: '', preview: '' });
       }
     });
     const imagesUrls = await this.getImagesUrls(images);
 
-    for (let i = 0; i < images.length; i++) images[i].url = imagesUrls[i];
+    const previewsUrls = await this.getPreviewsUrls(images);
+
+    for (let i = 0; i < images.length; i++) {
+      images[i].url = imagesUrls[i];
+      images[i].preview = previewsUrls[i];
+    }
 
     return images;
   };

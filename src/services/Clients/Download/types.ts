@@ -11,6 +11,7 @@ export type Image = {
   id: string;
   albumId: number;
   url: string;
+  preview: string;
 };
 
 export type AlbumImages = {

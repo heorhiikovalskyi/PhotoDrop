@@ -6,7 +6,7 @@ class EditImagesService {
   constructor(watermark: Buffer) {
     this.watermark = watermark;
   }
-  
+
   public putWatermark = async (buffer: Buffer) => {
     const { width, height } = await sharp(buffer).metadata();
     if (!width || !height) throw new ValidationError('Cannot read file dimensions');
@@ -29,6 +29,10 @@ class EditImagesService {
 
   public resize = async (buffer: Buffer, newWidth: number, newHeight: number | null = null) => {
     return await sharp(buffer).resize(newWidth, newHeight).toBuffer();
+  };
+
+  public blur = async (buffer: Buffer) => {
+    return await sharp(buffer).blur(3).toBuffer();
   };
 }
 
