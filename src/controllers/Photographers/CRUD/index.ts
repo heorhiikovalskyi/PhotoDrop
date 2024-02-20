@@ -37,8 +37,7 @@ class PhotographersController extends Controller {
   };
 
   private insertOne = async (req: Request, res: Response) => {
-    const { login, email, password, fullname, id, flag } = req.body;
-    console.log(typeof flag);
+    const { login, email, password, fullname, id } = req.body;
     const photograph = { login, email, password, fullname, id };
     if (!isNewPhotographer(photograph)) {
       throw new ValidationError('wrong photographer data');

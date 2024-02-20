@@ -26,7 +26,10 @@ export class ImagesRepository {
       .select()
       .from(ImagesClients)
       .leftJoin(Images, eq(Images.id, ImagesClients.imageId))
-      .leftJoin(AlbumsClients, eq(Images.albumId, AlbumsClients.albumId))
+      .leftJoin(
+        AlbumsClients,
+        and(eq(Images.albumId, AlbumsClients.albumId), eq(ImagesClients.clientId, AlbumsClients.clientId))
+      )
       .where(and(eq(ImagesClients.clientId, clientId), eq(AlbumsClients.albumId, albumId)))
       .leftJoin(Albums, eq(Albums.id, albumId));
   };
@@ -36,7 +39,10 @@ export class ImagesRepository {
       .select()
       .from(ImagesClients)
       .leftJoin(Images, eq(Images.id, ImagesClients.imageId))
-      .leftJoin(AlbumsClients, eq(Images.albumId, AlbumsClients.albumId))
+      .leftJoin(
+        AlbumsClients,
+        and(eq(Images.albumId, AlbumsClients.albumId), eq(ImagesClients.clientId, AlbumsClients.clientId))
+      )
       .where(eq(ImagesClients.clientId, clientId));
   };
 }
