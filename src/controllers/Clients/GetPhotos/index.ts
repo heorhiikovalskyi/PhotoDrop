@@ -13,7 +13,20 @@ class ClientDownloadController extends Controller {
     this.router.get('/getAlbums', tryCatch(clientTokenHandler), tryCatch(this.getAlbums));
     this.router.get('/getImages', tryCatch(clientTokenHandler), tryCatch(this.getImages));
     this.router.get('/getImagesByAlbumClient', tryCatch(clientTokenHandler), tryCatch(this.getAlbumImages));
+    this.router.get('/getDetailedAlbum', tryCatch(clientTokenHandler), tryCatch(this.getDetailedAlbum));
   }
+
+  private getDetailedAlbum = async (req: Request, res: Response) => {
+    const { clientId } = res.locals.user;
+
+    const { albumId } = req.query;
+
+    if (typeof Number(albumId) !== 'number') throw new ValidationError('albumId is not valid');
+
+    const album = await this.clientDownload.getDetailedAlbum(clientId, Number(albumId));
+
+    return res.status(200).json(album);
+  };
 
   private getAlbums = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;

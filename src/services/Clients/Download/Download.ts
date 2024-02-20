@@ -1,11 +1,12 @@
 import { AlbumsRepository } from '../../../repositories/Albums';
 import ImagesRepository from '../../../repositories/Images';
-import { Album, AlbumImages } from './types';
+import { Album, AlbumImages, DetailedAlbum } from './types';
 import { Image } from './types';
 import S3 from '../../s3';
 import 'dotenv/config';
 import { ServerError } from '../../../types/classes/Errors';
 import { ClientsRepository } from '../../../repositories/Clients';
+import { ValidationError } from '../../../types/classes/Errors';
 
 const { IMAGES_BUCKET, EDITED_IMAGES_BUCKET } = process.env;
 
@@ -20,6 +21,22 @@ class ClientDowndloadService {
     private s3: S3,
     private clients: ClientsRepository
   ) {}
+
+  public getDetailedAlbum = async (clientId: number, albumId: number) => {
+    const album = await this.albums.getByIdAndClient(albumId, clientId);
+    const images = await this.images.getByAlbumClient(albumId, clientId);
+    const { AlbumsClients } = album;
+    if (!AlbumsClients) throw new ValidationError('No such album for this client');
+    const { Images } = images[0];
+    const { paid } = AlbumsClients;
+    const detailedAlbum: DetailedAlbum = { album: { ...album.Albums, paid }, image: { url: '', preview: '' } };
+    if (Images) {
+      const image = { paid, ...Images };
+      const [images, previews] = await Promise.all([this.getImagesUrls([image]), this.getPreviewsUrls([image])]);
+      detailedAlbum.image = { url: images[0], preview: previews[0] };
+    }
+    return detailedAlbum;
+  };
 
   public getAlbums = async (clientId: number) => {
     const result = await this.albums.getByClient(clientId);

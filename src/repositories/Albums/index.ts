@@ -24,7 +24,7 @@ export class AlbumsRepository {
       .leftJoin(Albums, eq(Albums.id, AlbumsClients.albumId));
   };
 
-  getByIdAndClient = async (albumId: number, dataSource: DataSource = this.db, clientId: number) => {
+  getByIdAndClient = async (albumId: number, clientId: number, dataSource: DataSource = this.db) => {
     return (
       await dataSource
         .select()
