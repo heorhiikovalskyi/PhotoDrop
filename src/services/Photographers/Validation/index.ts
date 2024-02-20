@@ -13,7 +13,7 @@ class PhotographerValidationService {
 
     const decoded = jwt.verify(token as string, SECRET_JWT_KEY!);
 
-    if (typeof decoded === 'string' || decoded.role !== 'photograph') throw new AuthorizationError('not valid token');
+    if (typeof decoded === 'string' || decoded.role !== 'photographer') throw new AuthorizationError('not valid token');
     return { id: decoded.id, role: decoded.role } as { id: number; role: 'photographer' };
   };
 }

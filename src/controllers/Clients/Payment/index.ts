@@ -6,22 +6,23 @@ import ClientValidationService from '../../../services/Clients/Validation';
 import AlbumsPaymentService from '../../../services/Clients/Payment';
 import { ValidationError } from '../../../types/classes/Errors';
 import express from 'express';
-
+import { clientTokenHandler } from '../tokenHandler';
 const { ALBUM_PRICE } = process.env;
 
 class ClientPaymentController extends Controller {
   constructor(private clientValidation: ClientValidationService, private payment: AlbumsPaymentService) {
     super('/clients');
-    this.router.get('/getPaymentLink', express.raw({ type: 'application/json' }), tryCatch(this.getPaymentLink));
     this.router.post('/paymentWebhook', express.raw({ type: 'application/json' }), tryCatch(this.webhook));
+    this.router.get(
+      '/getPaymentLink',
+      express.raw({ type: 'application/json' }),
+      tryCatch(clientTokenHandler),
+      tryCatch(this.getPaymentLink)
+    );
   }
 
   private getPaymentLink = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const { albumId, albumName } = req.query;
 

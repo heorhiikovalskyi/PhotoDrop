@@ -5,20 +5,17 @@ import 'dotenv/config';
 import ClientValidationService from '../../../services/Clients/Validation';
 import { ValidationError } from '../../../types/classes/Errors';
 import EditProfileService from '../../../services/Clients/EditProfile';
+import { clientTokenHandler } from '../tokenHandler';
 
 class EditProfileController extends Controller {
   constructor(private clientValidation: ClientValidationService, private editProfile: EditProfileService) {
     super('/clients');
-    this.router.put('/updateName', tryCatch(this.updateName));
-    this.router.put('/updateEmail', tryCatch(this.updateEmail));
+    this.router.put('/updateName', tryCatch(clientTokenHandler), tryCatch(this.updateName));
+    this.router.put('/updateEmail', tryCatch(clientTokenHandler), tryCatch(this.updateEmail));
   }
 
   private updateName = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const { name } = req.query;
 
@@ -30,11 +27,7 @@ class EditProfileController extends Controller {
   };
 
   private updateEmail = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const { email } = req.query;
 

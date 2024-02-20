@@ -6,7 +6,8 @@ import tryCatch from '../../../tryCatch';
 import { AuthorizationError, ValidationError } from '../../../types/classes/Errors';
 import AdminValidationService from '../../../services/Admin/Validation';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
-
+import { adminTokenHandler } from '../adminTokenHandler';
+import { photographerTokenHandler } from '../photographerTokenHandler';
 class PhotographersController extends Controller {
   constructor(
     private photographers: PhotographersService,
@@ -14,24 +15,18 @@ class PhotographersController extends Controller {
     private photographerValidation: PhotographerValidationService
   ) {
     super('/photographers');
-    this.router.get('/', tryCatch(this.getAll));
-    this.router.delete('/:id', tryCatch(this.deleteOne));
-    this.router.post('/', tryCatch(this.insertOne));
-    this.router.get('/albums', tryCatch(this.getAllAlbums));
+    this.router.get('/', tryCatch(adminTokenHandler), tryCatch(this.getAll));
+    this.router.get('/albums', tryCatch(photographerTokenHandler), tryCatch(this.getAllAlbums));
+    this.router.delete('/:id', tryCatch(adminTokenHandler), tryCatch(this.deleteOne));
+    this.router.post('/', tryCatch(adminTokenHandler), tryCatch(this.insertOne));
   }
 
   private getAll = async (req: Request, res: Response) => {
-    console.log(req.headers);
-    console.log(req);
-    const { authorization: token } = req.headers;
-    await this.adminValidation.json(token);
     const photographers = await this.photographers.getAll();
     return res.status(200).json(photographers);
   };
 
   private deleteOne = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-    await this.adminValidation.json(token);
     const { id: idStr } = req.params;
     const id = Number(idStr);
     if (isNaN(id)) {
@@ -42,13 +37,11 @@ class PhotographersController extends Controller {
   };
 
   private insertOne = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-    await this.adminValidation.json(token);
     const { login, email, password, fullname, id, flag } = req.body;
     console.log(typeof flag);
     const photograph = { login, email, password, fullname, id };
     if (!isNewPhotographer(photograph)) {
-      throw new ValidationError('wrong photograph data');
+      throw new ValidationError('wrong photographer data');
     }
 
     await this.photographers.insertOne(photograph);
@@ -56,9 +49,8 @@ class PhotographersController extends Controller {
   };
 
   private getAllAlbums = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-    const decoded = await this.photographerValidation.json(token);
-    const albums = await this.photographers.getAllAlbums(decoded.id);
+    const { id } = res.locals.user;
+    const albums = await this.photographers.getAllAlbums(id);
     return res.status(200).json(albums);
   };
 }

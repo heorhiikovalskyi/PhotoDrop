@@ -7,12 +7,14 @@ import 'dotenv/config';
 import ClientValidationService from '../../../services/Clients/Validation';
 import S3 from '../../../services/s3';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
+import { clientTokenHandler } from '../tokenHandler';
 const { IMAGES_BUCKET } = process.env;
 
 class ClientUploadController extends Controller {
   constructor(private clientValidation: ClientValidationService, private s3: S3) {
     super('/clients');
-    this.router.post('/selfiesPresignedPost', tryCatch(this.presignedPost));
+
+    this.router.post('/selfiesPresignedPost', tryCatch(clientTokenHandler), tryCatch(this.presignedPost));
   }
 
   private presignedPost = async (req: Request, res: Response) => {
@@ -20,11 +22,7 @@ class ClientUploadController extends Controller {
 
     if (typeof contentType !== 'string') throw new ValidationError('wrong contentType');
 
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const imageId = uuidv4();
 

@@ -5,21 +5,18 @@ import 'dotenv/config';
 import ClientValidationService from '../../../services/Clients/Validation';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
 import { ValidationError } from '../../../types/classes/Errors';
+import { clientTokenHandler } from '../tokenHandler';
 
 class ClientDownloadController extends Controller {
   constructor(private clientValidation: ClientValidationService, private clientDownload: ClientDowndloadService) {
     super('/clients');
-    this.router.get('/getAlbums', tryCatch(this.getAlbums));
-    this.router.get('/getImages', tryCatch(this.getImages));
-    this.router.get('/getImagesByAlbumClient', tryCatch(this.getAlbumImages));
+    this.router.get('/getAlbums', tryCatch(clientTokenHandler), tryCatch(this.getAlbums));
+    this.router.get('/getImages', tryCatch(clientTokenHandler), tryCatch(this.getImages));
+    this.router.get('/getImagesByAlbumClient', tryCatch(clientTokenHandler), tryCatch(this.getAlbumImages));
   }
 
   private getAlbums = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const albums = await this.clientDownload.getAlbums(clientId);
 
@@ -27,11 +24,7 @@ class ClientDownloadController extends Controller {
   };
 
   private getImages = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const images = await this.clientDownload.getImages(clientId);
 
@@ -39,11 +32,7 @@ class ClientDownloadController extends Controller {
   };
 
   private getAlbumImages = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const { albumId } = req.query;
 

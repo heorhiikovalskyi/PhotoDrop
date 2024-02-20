@@ -5,21 +5,14 @@ import { Request, Response } from 'express';
 import ClientValidationService from '../../../services/Clients/Validation';
 import { ValidationError } from '../../../types/classes/Errors';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
+import { clientTokenHandler } from '../tokenHandler';
 class ClientsController extends Controller {
-  constructor(
-    private clients: ClientsRepository,
-    private clientsValidation: ClientValidationService,
-    private clientDownload: ClientDowndloadService
-  ) {
+  constructor(private clients: ClientsRepository, private clientDownload: ClientDowndloadService) {
     super('/clients');
-    this.router.get('/', tryCatch(this.getById));
+    this.router.get('/', tryCatch(clientTokenHandler), tryCatch(this.getById));
   }
   private getById = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-
-    const decoded = await this.clientsValidation.json(token);
-
-    const clientId = decoded.id;
+    const { clientId } = res.locals.user;
 
     const client = await this.clients.getById(clientId);
 

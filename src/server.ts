@@ -27,7 +27,7 @@ import AttachClientsService from './services/Photographers/AttachClients';
 import AttachClientsController from './controllers/Photographers/AttachClients';
 import Telegram from './services/Telegram';
 import { ClientsRepository } from './repositories/Clients';
-import { Storage } from './services/Telegram/types';
+import { Storage } from './services/Telegram/Storage';
 import ImagesRepository from './repositories/Images';
 import ImagesClientsRepository from './repositories/ImagesClients';
 import { AlbumsClientsRepository } from './repositories/AlbumsClients';
@@ -93,7 +93,7 @@ const main = async () => {
     new AlbumsClientsRepository(db)
   );
 
-  const clientsController = new ClientsController(clientsRepo, clientValidationService, clientDownloadService);
+  const clientsController = new ClientsController(clientsRepo, clientDownloadService);
 
   const clientsAuthController = new ClientsAuthController(clientAuthService);
 

@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+
+export type MiddlewareFunction = (req: Request, res: Response) => Promise<Response<unknown, Record<string, unknown>>>;
+export type TokenHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
+
 const tryCatch =
-  (foo: (req: Request, res: Response) => Promise<Response<unknown, Record<string, unknown>>>) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  (foo: MiddlewareFunction | TokenHandler) => async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await foo(req, res);
+      await foo(req, res, next);
     } catch (error) {
       return next(error);
     }

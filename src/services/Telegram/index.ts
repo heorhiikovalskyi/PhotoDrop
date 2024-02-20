@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { Storage } from './types';
+import { Storage } from './Storage';
 
 const { TELEGRAM_API_TOKEN } = process.env;
 

@@ -10,6 +10,7 @@ import S3 from '../../../services/s3';
 import { Image } from './types';
 import { isImages } from './types';
 import { PresignedPost } from '@aws-sdk/s3-presigned-post';
+import { photographerTokenHandler } from '../photographerTokenHandler';
 
 const { IMAGES_BUCKET } = process.env;
 
@@ -20,15 +21,13 @@ class PhotographerUploadController extends Controller {
     private s3: S3
   ) {
     super('/photographers');
-    this.router.post('/uploadAlbum', tryCatch(this.saveAlbum));
-    this.router.post('/imagesPresignedPost', tryCatch(this.presignedPost));
+    this.router.post('/uploadAlbum', tryCatch(photographerTokenHandler), tryCatch(this.saveAlbum));
+    this.router.post('/imagesPresignedPost', tryCatch(photographerTokenHandler), tryCatch(this.presignedPost));
   }
 
   private saveAlbum = async (req: Request, res: Response) => {
-    const { authorization: token } = req.headers;
-    const decoded = await this.photographerValidation.json(token);
+    const { id: photographerId } = res.locals.user;
     const { name, location, date } = req.body;
-    const photographerId = decoded.id as number;
     if (typeof name !== 'string' || typeof location !== 'string' || typeof date !== 'string')
       throw new ValidationError('invalid album data');
 
@@ -41,10 +40,6 @@ class PhotographerUploadController extends Controller {
     const { images } = req.body;
 
     if (!isImages(images)) throw new ValidationError('albums error');
-
-    const { authorization: token } = req.headers;
-
-    await this.photographerValidation.json(token);
 
     const posts: { post: PresignedPost; realName: string }[] = [];
 

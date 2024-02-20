@@ -26,7 +26,7 @@ class PhotographersAuthenticationService {
 
     const payload = {
       id: photographerId,
-      role: 'photograph',
+      role: 'photographer',
     };
 
     const options = {
