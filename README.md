@@ -12,7 +12,7 @@ Sharp module is used to blur, resize and watermark images. It is deployed using 
 
 ## Deployment
 
-Dockerfile is used and project is deployed on Fly.io service.
+Docker is used and project is deployed on Fly.io service.
 
 ## Documentation
 

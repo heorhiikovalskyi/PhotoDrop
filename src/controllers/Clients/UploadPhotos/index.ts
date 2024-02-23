@@ -26,9 +26,11 @@ class ClientUploadController extends Controller {
 
     const imageId = uuidv4();
 
-    const post = await this.s3.presignedPost(3600, `selfie/${clientId}/${imageId}`, IMAGES_BUCKET!, contentType);
+    const imageName = `selfie/${clientId}/${imageId}`;
 
-    const accessUrl = await this.s3.getImageUrl(IMAGES_BUCKET!, imageId);
+    const post = await this.s3.presignedPost(3600, imageName, IMAGES_BUCKET!, contentType);
+
+    const accessUrl = await this.s3.getImageUrl(IMAGES_BUCKET!, imageName);
 
     return res.status(200).json({ post, accessUrl });
   };
