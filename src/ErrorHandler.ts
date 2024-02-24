@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { isDbError } from './types/interfaces/Error';
 import { ValidationError, AuthorizationError, TooManyRequests } from './types/classes/Errors';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { ZodError } from 'zod';
 
 class ErrorHandler {
   sql = (err: unknown, req: Request, res: Response, next: NextFunction) => {
@@ -38,6 +39,13 @@ class ErrorHandler {
     if (err instanceof TooManyRequests) {
       const { message, code } = err;
       return res.status(code).send(message);
+    }
+    next(err);
+  };
+
+  zod = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof ZodError) {
+      return res.status(400).send(err);
     }
     next(err);
   };

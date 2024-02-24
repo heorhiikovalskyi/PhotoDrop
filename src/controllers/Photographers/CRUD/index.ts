@@ -8,6 +8,7 @@ import AdminValidationService from '../../../services/Admin/Validation';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
 import { adminTokenHandler } from '../adminTokenHandler';
 import { photographerTokenHandler } from '../photographerTokenHandler';
+import { NewPhotographerSchema } from './zod';
 class PhotographersController extends Controller {
   constructor(
     private photographers: PhotographersService,
@@ -39,9 +40,8 @@ class PhotographersController extends Controller {
   private insertOne = async (req: Request, res: Response) => {
     const { login, email, password, fullname, id } = req.body;
     const photograph = { login, email, password, fullname, id };
-    if (!isNewPhotographer(photograph)) {
-      throw new ValidationError('wrong photographer data');
-    }
+
+    NewPhotographerSchema.parse(photograph);
 
     await this.photographers.insertOne(photograph);
     return res.sendStatus(200);

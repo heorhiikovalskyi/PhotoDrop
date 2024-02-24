@@ -3,9 +3,9 @@ import tryCatch from '../../../tryCatch';
 import AttachClientsService from '../../../services/Photographers/AttachClients';
 import { Request, Response } from 'express';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
-import { isImagesClients } from '../../../types/types/ImageClients';
 import { ValidationError } from '../../../types/classes/Errors';
 import { photographerTokenHandler } from '../photographerTokenHandler';
+import { ImagesClientsSchema } from './zod';
 
 class AttachClientsController extends Controller {
   constructor(
@@ -24,7 +24,7 @@ class AttachClientsController extends Controller {
 
   private attachClients = async (req: Request, res: Response) => {
     const { imagesClients } = req.body;
-    if (!isImagesClients(imagesClients)) throw new ValidationError('invalid image or clients');
+    ImagesClientsSchema.parse(imagesClients);
     await this.attachClientsService.attachClients(imagesClients);
     return res.sendStatus(200);
   };

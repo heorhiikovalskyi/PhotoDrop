@@ -6,6 +6,7 @@ import ClientValidationService from '../../../services/Clients/Validation';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
 import { ValidationError } from '../../../types/classes/Errors';
 import { clientTokenHandler } from '../tokenHandler';
+import { z } from 'zod';
 
 class ClientDownloadController extends Controller {
   constructor(private clientValidation: ClientValidationService, private clientDownload: ClientDowndloadService) {
@@ -19,11 +20,13 @@ class ClientDownloadController extends Controller {
   private getDetailedAlbum = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { albumId } = req.query;
+    const { albumId_ } = req.query;
 
-    if (typeof Number(albumId) !== 'number') throw new ValidationError('albumId is not valid');
+    const albumId = Number(albumId_);
 
-    const album = await this.clientDownload.getDetailedAlbum(clientId, Number(albumId));
+    if (isNaN(albumId)) throw new ValidationError('albumId is not valid');
+
+    const album = await this.clientDownload.getDetailedAlbum(clientId, albumId);
 
     return res.status(200).json(album);
   };
@@ -47,11 +50,13 @@ class ClientDownloadController extends Controller {
   private getAlbumImages = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { albumId } = req.query;
+    const { albumId_ } = req.query;
 
-    if (typeof Number(albumId) !== 'number') throw new ValidationError('albumId is not valid');
+    const albumId = Number(albumId_);
 
-    const images = await this.clientDownload.getAlbumImages(clientId, Number(albumId));
+    if (isNaN(albumId)) throw new ValidationError('albumId is not valid');
+
+    const images = await this.clientDownload.getAlbumImages(clientId, albumId);
 
     return res.status(200).json(images);
   };

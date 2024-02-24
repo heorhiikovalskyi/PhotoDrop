@@ -6,6 +6,7 @@ import ClientValidationService from '../../../services/Clients/Validation';
 import { ValidationError } from '../../../types/classes/Errors';
 import EditProfileService from '../../../services/Clients/EditProfile';
 import { clientTokenHandler } from '../tokenHandler';
+import { z } from 'zod';
 
 class EditProfileController extends Controller {
   constructor(private clientValidation: ClientValidationService, private editProfile: EditProfileService) {
@@ -17,9 +18,9 @@ class EditProfileController extends Controller {
   private updateName = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { name } = req.query;
+    const { name_ } = req.query;
 
-    if (typeof name !== 'string') throw new ValidationError('name is not valid');
+    const name = z.string().parse(name_);
 
     await this.editProfile.updateName(clientId, name);
 
@@ -29,9 +30,9 @@ class EditProfileController extends Controller {
   private updateEmail = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { email } = req.query;
+    const { email_ } = req.query;
 
-    if (typeof email !== 'string') throw new ValidationError('email is not valid');
+    const email = z.string().parse(email_);
 
     await this.editProfile.updateEmail(clientId, email);
 

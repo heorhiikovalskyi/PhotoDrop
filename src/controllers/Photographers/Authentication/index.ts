@@ -3,6 +3,7 @@ import tryCatch from '../../../tryCatch';
 import { Request, Response } from 'express';
 import { ValidationError } from '../../../types/classes/Errors';
 import PhotographersAuthenticationService from '../../../services/Photographers/Authentication';
+import { UserSchema } from './zod';
 
 class PhotographersAuthenticationController extends Controller {
   constructor(private photographersAuth: PhotographersAuthenticationService) {
@@ -13,9 +14,7 @@ class PhotographersAuthenticationController extends Controller {
   private login = async (req: Request, res: Response) => {
     const { login, password } = req.body;
 
-    if (typeof login !== 'string' || typeof password !== 'string') {
-      throw new ValidationError('login and password should be strings');
-    }
+    UserSchema.parse({ login, password });
 
     const token = await this.photographersAuth.issueToken(login, password);
 

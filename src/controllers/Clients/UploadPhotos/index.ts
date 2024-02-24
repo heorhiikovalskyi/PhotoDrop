@@ -8,6 +8,7 @@ import ClientValidationService from '../../../services/Clients/Validation';
 import S3 from '../../../services/s3';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
 import { clientTokenHandler } from '../tokenHandler';
+import { z } from 'zod';
 const { IMAGES_BUCKET } = process.env;
 
 class ClientUploadController extends Controller {
@@ -20,7 +21,7 @@ class ClientUploadController extends Controller {
   private presignedPost = async (req: Request, res: Response) => {
     const { contentType } = req.body;
 
-    if (typeof contentType !== 'string') throw new ValidationError('wrong contentType');
+    z.string().parse(contentType);
 
     const { clientId } = res.locals.user;
 

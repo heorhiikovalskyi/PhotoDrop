@@ -1,9 +1,10 @@
 import { ClientsRepository } from '../../../repositories/Clients';
 import { NewImageClient } from '../../../db/schema/ImagesClients';
 import ImagesClientsRepository from '../../../repositories/ImagesClients';
-import { ImageClients } from '../../../types/types/ImageClients';
+import { ImageClients } from '../../../controllers/Photographers/AttachClients/types';
 import { AlbumsClientsRepository } from '../../../repositories/AlbumsClients';
 import { NewAlbumClient } from '../../../db/schema/albumsClients';
+import { db } from '../../../db/db';
 
 class AttachClientsService {
   constructor(
@@ -16,15 +17,17 @@ class AttachClientsService {
   };
 
   public attachClients = async (imagesClients: ImageClients[]) => {
+    const imagesClientsToInsert: NewImageClient[] = [];
+    const albumsClients: NewAlbumClient[] = [];
     for (let i = 0; i < imagesClients.length; i++) {
       const { clientsId, image } = imagesClients[i];
-      const imagesClientsToInsert: NewImageClient[] = [];
       clientsId.forEach((clientId) => imagesClientsToInsert.push({ imageId: image.id, clientId }));
-      await this.imagesClients.insertMany(imagesClientsToInsert);
-      const albumsClients: NewAlbumClient[] = [];
       clientsId.forEach((clientId) => albumsClients.push({ clientId, albumId: image.albumId, paid: false }));
-      await this.albumsClients.insertMany(albumsClients);
     }
+    await db.transaction(async (tx) => {
+      await this.imagesClients.insertMany(imagesClientsToInsert, tx);
+      await this.albumsClients.insertMany(albumsClients, tx);
+    });
   };
 }
 

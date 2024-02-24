@@ -8,9 +8,10 @@ import 'dotenv/config';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
 import S3 from '../../../services/s3';
 import { Image } from './types';
-import { isImages } from './types';
+import { ImagesSchema } from './zod';
 import { PresignedPost } from '@aws-sdk/s3-presigned-post';
 import { photographerTokenHandler } from '../photographerTokenHandler';
+import { NewAlbumSchema } from './zod';
 
 const { IMAGES_BUCKET } = process.env;
 
@@ -28,29 +29,30 @@ class PhotographerUploadController extends Controller {
   private saveAlbum = async (req: Request, res: Response) => {
     const { id: photographerId } = res.locals.user;
     const { name, location, date } = req.body;
-    if (typeof name !== 'string' || typeof location !== 'string' || typeof date !== 'string')
-      throw new ValidationError('invalid album data');
 
     const album = { name, location, date, photographerId };
+
+    NewAlbumSchema.parse(album);
+
     const newAlbum = await this.photographerUpload.insertAlbum(album);
     return res.status(200).json(newAlbum);
   };
 
   private presignedPost = async (req: Request, res: Response) => {
-    const { images } = req.body;
+    const { images_ } = req.body;
 
-    if (!isImages(images)) throw new ValidationError('albums error');
+    const images = ImagesSchema.parse(images_);
 
-    const posts: { post: PresignedPost; realName: string }[] = [];
-
-    for (let i = 0; i < images.length; i++) {
-      const { albumId, type, name } = images[i];
-      const imageId = uuidv4();
-      posts.push({
-        post: await this.s3.presignedPost(3600, `album/${albumId}/${imageId}`, IMAGES_BUCKET!, type),
-        realName: name,
-      });
-    }
+    const posts = await Promise.all(
+      images.map(async (image) => {
+        const { albumId, type, name } = image;
+        const imageId = uuidv4();
+        return {
+          post: await this.s3.presignedPost(3600, `album/${albumId}/${imageId}`, IMAGES_BUCKET!, type),
+          realName: name,
+        };
+      })
+    );
 
     return res.status(200).json(posts);
   };

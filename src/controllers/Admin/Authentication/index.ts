@@ -3,6 +3,7 @@ import AdminAuthenticationService from '../../../services/Admin/Authentication';
 import { ValidationError } from '../../../types/classes/Errors';
 import { Request, Response } from 'express';
 import tryCatch from '../../../tryCatch';
+import { UserSchema } from './validation';
 
 class AdminAuthenticationController extends Controller {
   constructor(private adminAuth: AdminAuthenticationService) {
@@ -13,10 +14,7 @@ class AdminAuthenticationController extends Controller {
   private login = async (req: Request, res: Response) => {
     const { login, password } = req.body;
 
-    if (typeof login !== 'string' || typeof password !== 'string') {
-      console.log(typeof login);
-      throw new ValidationError('login and password should be strings');
-    }
+    UserSchema.parse({ login, password });
 
     const token = await this.adminAuth.issueToken(login, password);
 

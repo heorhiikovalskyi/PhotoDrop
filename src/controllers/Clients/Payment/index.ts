@@ -8,6 +8,8 @@ import { ValidationError } from '../../../types/classes/Errors';
 import express from 'express';
 import { clientTokenHandler } from '../tokenHandler';
 const { ALBUM_PRICE } = process.env;
+import { AlbumSchema } from './validation';
+import { z } from 'zod';
 
 class ClientPaymentController extends Controller {
   constructor(private clientValidation: ClientValidationService, private payment: AlbumsPaymentService) {
@@ -24,9 +26,11 @@ class ClientPaymentController extends Controller {
   private getPaymentLink = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { albumId, albumName } = req.query;
+    const { albumId_, albumName_ } = req.query;
 
-    if (typeof albumId !== 'string' || typeof albumName !== 'string') throw new ValidationError('album is not valid');
+    const album = AlbumSchema.parse({ albumId_, albumName_ });
+
+    const { albumId, albumName } = album;
 
     const session = await this.payment.createSession(Number(ALBUM_PRICE) * 100, 'USD', albumName, {
       albumId,
@@ -38,9 +42,9 @@ class ClientPaymentController extends Controller {
 
   private webhook = async (req: Request, res: Response) => {
     let body = req.body;
-    const signature = req.headers['stripe-signature'];
+    const signature_ = req.headers['stripe-signature'];
 
-    if (typeof signature !== 'string') throw new ValidationError('signature is not valid');
+    const signature = z.string().parse(signature_);
 
     await this.payment.handleWebhook(body, signature);
 

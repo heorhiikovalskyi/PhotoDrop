@@ -3,6 +3,8 @@ import tryCatch from '../../../tryCatch';
 import { Request, Response } from 'express';
 import { AuthorizationError, TooManyRequests, ValidationError } from '../../../types/classes/Errors';
 import ClientAuthenticationService from '../../../services/Clients/Authentication';
+import { CodeVerifySchema } from './validation';
+import { z } from 'zod';
 
 class ClientsAuthController extends Controller {
   constructor(private clientAuth: ClientAuthenticationService) {
@@ -14,7 +16,7 @@ class ClientsAuthController extends Controller {
   private sendCode = async (req: Request, res: Response) => {
     const { number } = req.body;
 
-    if (typeof number !== 'string') throw new ValidationError('number is not valid');
+    z.string().parse(number);
 
     if (this.clientAuth.getClientMessagesNumber(number) === 2) throw new TooManyRequests('limit of code resend');
 
@@ -26,8 +28,7 @@ class ClientsAuthController extends Controller {
   private verifyCode = async (req: Request, res: Response) => {
     const { code, number } = req.body;
 
-    if (typeof number !== 'string' || typeof code !== 'string')
-      throw new ValidationError('number or code is not valid');
+    CodeVerifySchema.parse({ code, number });
 
     if (!this.clientAuth.verifyCode(number, code)) throw new AuthorizationError('invalid code');
 
