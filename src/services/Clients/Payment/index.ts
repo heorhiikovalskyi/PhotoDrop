@@ -11,7 +11,7 @@ class AlbumsPaymentService {
     toPay: number,
     currency: string,
     productDescription: string,
-    description: { albumId: string; clientId: number }
+    description: { albumId: number; clientId: number }
   ) => {
     const session = await this.stripe.checkout.sessions.create(
       {
@@ -45,7 +45,9 @@ class AlbumsPaymentService {
         if (!paymentInfo_) throw new ValidationError('description is not valid');
         const paymentInfo = DescripotionSchema.parse(JSON.parse(paymentInfo_));
         const { clientId, albumId } = paymentInfo;
-        await this.albumsClients.updatePaid(clientId, albumId);
+        await this.albumsClients.updatePaid(Number(clientId), Number(albumId));
+        return;
+      default:
         return;
     }
   };

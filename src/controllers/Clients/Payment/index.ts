@@ -31,7 +31,7 @@ class ClientPaymentController extends Controller {
     const album = AlbumSchema.parse({ albumId, albumName });
 
     const session = await this.payment.createSession(Number(ALBUM_PRICE) * 100, 'USD', album.albumName, {
-      albumId: album.albumId,
+      albumId: Number(album.albumId),
       clientId,
     });
 
@@ -46,7 +46,7 @@ class ClientPaymentController extends Controller {
 
     await this.payment.handleWebhook(body, signature);
 
-    return res.status(200);
+    return res.sendStatus(200);
   };
 }
 
