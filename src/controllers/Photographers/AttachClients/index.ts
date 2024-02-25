@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
 import { ValidationError } from '../../../types/classes/Errors';
 import { photographerTokenHandler } from '../photographerTokenHandler';
-import { ImagesClientsSchema } from './zod';
+import { ImagesClientsSchema } from './validation';
 
 class AttachClientsController extends Controller {
   constructor(

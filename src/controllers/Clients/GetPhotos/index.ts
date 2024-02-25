@@ -6,7 +6,6 @@ import ClientValidationService from '../../../services/Clients/Validation';
 import ClientDowndloadService from '../../../services/Clients/Download/Download';
 import { ValidationError } from '../../../types/classes/Errors';
 import { clientTokenHandler } from '../tokenHandler';
-import { z } from 'zod';
 
 class ClientDownloadController extends Controller {
   constructor(private clientValidation: ClientValidationService, private clientDownload: ClientDowndloadService) {
@@ -20,7 +19,7 @@ class ClientDownloadController extends Controller {
   private getDetailedAlbum = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { albumId_ } = req.query;
+    const { albumId: albumId_ } = req.query;
 
     const albumId = Number(albumId_);
 

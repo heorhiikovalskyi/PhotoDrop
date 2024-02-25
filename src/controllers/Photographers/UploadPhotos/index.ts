@@ -8,10 +8,10 @@ import 'dotenv/config';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
 import S3 from '../../../services/s3';
 import { Image } from './types';
-import { ImagesSchema } from './zod';
+import { ImagesSchema } from './validation';
 import { PresignedPost } from '@aws-sdk/s3-presigned-post';
 import { photographerTokenHandler } from '../photographerTokenHandler';
-import { NewAlbumSchema } from './zod';
+import { NewAlbumSchema } from './validation';
 
 const { IMAGES_BUCKET } = process.env;
 
@@ -39,7 +39,7 @@ class PhotographerUploadController extends Controller {
   };
 
   private presignedPost = async (req: Request, res: Response) => {
-    const { images_ } = req.body;
+    const { images: images_ } = req.body;
 
     const images = ImagesSchema.parse(images_);
 

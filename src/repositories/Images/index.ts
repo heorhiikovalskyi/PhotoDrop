@@ -25,21 +25,21 @@ export class ImagesRepository {
     return await this.db
       .select()
       .from(ImagesClients)
-      .leftJoin(Images, eq(Images.id, ImagesClients.imageId))
-      .leftJoin(
+      .innerJoin(Images, eq(Images.id, ImagesClients.imageId))
+      .innerJoin(
         AlbumsClients,
         and(eq(Images.albumId, AlbumsClients.albumId), eq(ImagesClients.clientId, AlbumsClients.clientId))
       )
       .where(and(eq(ImagesClients.clientId, clientId), eq(AlbumsClients.albumId, albumId)))
-      .leftJoin(Albums, eq(Albums.id, albumId));
+      .innerJoin(Albums, eq(Albums.id, albumId));
   };
 
   getByClient = async (clientId: number) => {
     return await this.db
       .select()
       .from(ImagesClients)
-      .leftJoin(Images, eq(Images.id, ImagesClients.imageId))
-      .leftJoin(
+      .innerJoin(Images, eq(Images.id, ImagesClients.imageId))
+      .innerJoin(
         AlbumsClients,
         and(eq(Images.albumId, AlbumsClients.albumId), eq(ImagesClients.clientId, AlbumsClients.clientId))
       )

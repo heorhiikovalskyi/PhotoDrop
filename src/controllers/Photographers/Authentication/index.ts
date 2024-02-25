@@ -3,7 +3,7 @@ import tryCatch from '../../../tryCatch';
 import { Request, Response } from 'express';
 import { ValidationError } from '../../../types/classes/Errors';
 import PhotographersAuthenticationService from '../../../services/Photographers/Authentication';
-import { UserSchema } from './zod';
+import { UserSchema } from './validation';
 
 class PhotographersAuthenticationController extends Controller {
   constructor(private photographersAuth: PhotographersAuthenticationService) {

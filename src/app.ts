@@ -10,7 +10,7 @@ import { AlbumsClientsRepository } from './repositories/AlbumsClients';
 import { stripeClient } from './stripe';
 import { db } from './db/db';
 const errorHandler = new ErrorHandler();
-const { server, validation, sql, json, limitRequests } = errorHandler;
+const { server, validation, sql, json, limitRequests, zod } = errorHandler;
 
 class App {
   app: express.Application;
@@ -53,6 +53,7 @@ class App {
     this.app.use(validation);
     this.app.use(json);
     this.app.use(limitRequests);
+    this.app.use(zod);
     this.app.use(server);
   }
 

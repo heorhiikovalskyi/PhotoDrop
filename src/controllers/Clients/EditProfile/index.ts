@@ -18,7 +18,7 @@ class EditProfileController extends Controller {
   private updateName = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { name_ } = req.query;
+    const { name: name_ } = req.query;
 
     const name = z.string().parse(name_);
 
@@ -30,7 +30,7 @@ class EditProfileController extends Controller {
   private updateEmail = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { email_ } = req.query;
+    const { email: email_ } = req.query;
 
     const email = z.string().parse(email_);
 

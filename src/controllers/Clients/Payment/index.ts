@@ -26,14 +26,12 @@ class ClientPaymentController extends Controller {
   private getPaymentLink = async (req: Request, res: Response) => {
     const { clientId } = res.locals.user;
 
-    const { albumId_, albumName_ } = req.query;
+    const { albumId, albumName } = req.query;
 
-    const album = AlbumSchema.parse({ albumId_, albumName_ });
+    const album = AlbumSchema.parse({ albumId, albumName });
 
-    const { albumId, albumName } = album;
-
-    const session = await this.payment.createSession(Number(ALBUM_PRICE) * 100, 'USD', albumName, {
-      albumId,
+    const session = await this.payment.createSession(Number(ALBUM_PRICE) * 100, 'USD', album.albumName, {
+      albumId: album.albumId,
       clientId,
     });
 

@@ -1,8 +1,8 @@
 const { STRIPE_SECRET_KEY, FRONTEND_CLIENT_BASED_URL, WEBHOOK_SECRET } = process.env;
 import stripe from 'stripe';
 import { ValidationError } from '../../../types/classes/Errors';
-import { isDescription } from './types';
 import { AlbumsClientsRepository } from '../../../repositories/AlbumsClients';
+import { DescripotionSchema } from './validation';
 
 class AlbumsPaymentService {
   constructor(private stripe: stripe, private albumsClients: AlbumsClientsRepository) {}
@@ -41,10 +41,9 @@ class AlbumsPaymentService {
     const event = this.stripe.webhooks.constructEvent(body, signature, WEBHOOK_SECRET!);
     switch (event.type) {
       case 'payment_intent.succeeded':
-        let paymentInfo = event.data.object.description;
-        if (!paymentInfo) throw new ValidationError('description is not valid');
-        paymentInfo = JSON.parse(paymentInfo);
-        if (!isDescription(paymentInfo)) throw new ValidationError('description is not valid');
+        const paymentInfo_ = event.data.object.description;
+        if (!paymentInfo_) throw new ValidationError('description is not valid');
+        const paymentInfo = DescripotionSchema.parse(JSON.parse(paymentInfo_));
         const { clientId, albumId } = paymentInfo;
         await this.albumsClients.updatePaid(clientId, albumId);
         return;

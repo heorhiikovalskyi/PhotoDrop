@@ -21,7 +21,7 @@ export class AlbumsRepository {
       .select()
       .from(AlbumsClients)
       .where(eq(AlbumsClients.clientId, clientId))
-      .leftJoin(Albums, eq(Albums.id, AlbumsClients.albumId));
+      .innerJoin(Albums, eq(Albums.id, AlbumsClients.albumId));
   };
 
   getByIdAndClient = async (albumId: number, clientId: number, dataSource: DataSource = this.db) => {
@@ -30,7 +30,7 @@ export class AlbumsRepository {
         .select()
         .from(Albums)
         .where(eq(Albums.id, albumId))
-        .leftJoin(AlbumsClients, and(eq(Albums.id, AlbumsClients.albumId), eq(AlbumsClients.clientId, clientId)))
+        .innerJoin(AlbumsClients, and(eq(Albums.id, AlbumsClients.albumId), eq(AlbumsClients.clientId, clientId)))
     )[0];
   };
 }

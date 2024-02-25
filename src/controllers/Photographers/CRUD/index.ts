@@ -8,7 +8,7 @@ import AdminValidationService from '../../../services/Admin/Validation';
 import PhotographerValidationService from '../../../services/Photographers/Validation';
 import { adminTokenHandler } from '../adminTokenHandler';
 import { photographerTokenHandler } from '../photographerTokenHandler';
-import { NewPhotographerSchema } from './zod';
+import { NewPhotographerSchema } from './validation';
 class PhotographersController extends Controller {
   constructor(
     private photographers: PhotographersService,

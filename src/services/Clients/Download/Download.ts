@@ -25,15 +25,15 @@ class ClientDowndloadService {
   public getDetailedAlbum = async (clientId: number, albumId: number) => {
     const album = await this.albums.getByIdAndClient(albumId, clientId);
     const images = await this.images.getByAlbumClient(albumId, clientId);
+    if (!album) throw new ValidationError('No such album for this client');
     const { AlbumsClients } = album;
-    if (!AlbumsClients) throw new ValidationError('No such album for this client');
     const { Images } = images[0];
     const { paid } = AlbumsClients;
     const detailedAlbum: DetailedAlbum = { album: { ...album.Albums, paid }, image: { url: '', preview: '' } };
     if (Images) {
       const image = { paid, ...Images };
-      const [images, previews] = await Promise.all([this.getImagesUrls([image]), this.getPreviewsUrls([image])]);
-      detailedAlbum.image = { url: images[0], preview: previews[0] };
+      const [[imageUrl], [preview]] = await Promise.all([this.getImagesUrls([image]), this.getPreviewsUrls([image])]);
+      detailedAlbum.image = { url: imageUrl, preview };
     }
     return detailedAlbum;
   };
@@ -43,11 +43,9 @@ class ClientDowndloadService {
     const albums: Album[] = [];
     result.forEach((e) => {
       const { AlbumsClients, Albums } = e;
-      if (Albums) {
-        const { paid } = AlbumsClients;
-        const { name, date, location, id } = Albums;
-        albums.push({ paid, name, date, location, id });
-      }
+      const { paid } = AlbumsClients;
+      const { name, date, location, id } = Albums;
+      albums.push({ paid, name, date, location, id });
     });
     return albums;
   };
@@ -86,11 +84,9 @@ class ClientDowndloadService {
 
     result.forEach((e) => {
       const { AlbumsClients, Images, Albums } = e;
-      if (Albums && AlbumsClients && Images) {
-        const { paid, albumId } = AlbumsClients;
-        const { id } = Images;
-        images.push({ paid, id, albumId, url: '', preview: '' });
-      }
+      const { paid, albumId } = AlbumsClients;
+      const { id } = Images;
+      images.push({ paid, id, albumId, url: '', preview: '' });
     });
 
     const imagesUrls = await this.getImagesUrls(images);
@@ -116,10 +112,8 @@ class ClientDowndloadService {
     result.forEach((e) => {
       const { ImagesClients, AlbumsClients, Images } = e;
       const { imageId } = ImagesClients;
-      if (AlbumsClients && Images) {
-        const { paid, albumId } = AlbumsClients;
-        images.push({ paid, albumId, id: imageId, url: '', preview: '' });
-      }
+      const { paid, albumId } = AlbumsClients;
+      images.push({ paid, albumId, id: imageId, url: '', preview: '' });
     });
     const imagesUrls = await this.getImagesUrls(images);
 
